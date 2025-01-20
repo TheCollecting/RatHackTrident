@@ -71,6 +71,7 @@ function initOreText()
     --for i = 0, #playerList do
     for i = 0, 500 do
         local ore = Drawing.new("Text")
+        ore.Center = true
         ore.Visible = false
         table.insert(ores, ore)
     end
@@ -109,6 +110,7 @@ function initPlayerText()
     --for i = 0, #playerList do
     for i = 0, 500 do
         local player = Drawing.new("Text")
+        player.Center = true
         player.Visible = false
         table.insert(players, player)
     end
@@ -448,6 +450,19 @@ EspSettings:AddToggle('Toggle Ore ESP', {
 
     Callback = function(Value)
         esp.ore.enabled = Value
+    end
+})
+
+EspSettings:AddSlider('Ore ESP Distance', {
+    Text = 'Ore Esp Distance',
+    Default = esp.ore.distance,
+    Tooltip = 'u stupid again',
+    Min = 50,
+    Max = 1000,
+    Rounding = 1,
+
+    Callback = function(Value)
+        esp.ore.distance = Value
     end
 })
 
