@@ -339,6 +339,13 @@ EspSettings:AddToggle('ESP', {
     Callback = function(Value)
         esp.enabled = Value
     end
+}):AddColorPicker('ColorPicker', {
+    Default = esp.color,
+    Title = 'ESP color blahhh',
+    Transparency = 0,
+    Callback = function(Value)
+        esp.color = Value
+    end
 })
 EspSettings:AddSlider('ESP Distance', {
     Text = 'Esp Distance',
@@ -351,26 +358,16 @@ EspSettings:AddSlider('ESP Distance', {
         esp.distance = Value
     end
 })
-EspSettings:AddLabel('ESP Color'):AddColorPicker('ColorPicker', {
-    Default = esp.color,
-    Title = 'ESP color blahhh',
-    Transparency = 0,
-    Callback = function(Value)
-        esp.color = Value
-    end
-})
-EspSettings:AddDivider()
-EspSettings:AddLabel('Ore ESP', {
-    Text = 'Ore ESP'
-})
-EspSettings:AddToggle('Toggle Ore ESP', {
+
+local OreESPSettings = Tabs.ESP:AddLeftGroupbox('Ore ESP')
+OreEspSettings:AddToggle('Toggle Ore ESP', {
     Text = 'Toggle Ore ESP',
     Default = esp.ore.enabled,
     Callback = function(Value)
         esp.ore.enabled = Value
     end
 })
-EspSettings:AddSlider('Ore ESP Distance', {
+OreEspSettings:AddSlider('Ore ESP Distance', {
     Text = 'Ore Esp Distance',
     Default = esp.ore.distance,
     Tooltip = 'u stupid again',
@@ -381,7 +378,7 @@ EspSettings:AddSlider('Ore ESP Distance', {
         esp.ore.distance = Value
     end
 })
-EspSettings:AddDropdown('Ores', {
+OreEspSettings:AddDropdown('Ores', {
     Values = { 'Stone', 'Iron', 'Nitrate' },
     Default = 0,
     Multi = true,
@@ -436,8 +433,7 @@ WorldSettings:AddToggle('Fullbright', {
     Callback = function(Value)
         visuals.fullbright.enabled = Value
     end
-})
-WorldSettings:AddLabel('Fullbright Color'):AddColorPicker('ColorPicker', {
+}):AddColorPicker('ColorPicker', {
     Default = visuals.fullbright.color,
     Title = 'Fullbright Color',
     Transparency = 0,
