@@ -321,7 +321,7 @@ local ESPLoop = game:GetService("RunService").RenderStepped:Connect(function()
                     if v.PrimaryPart then
                         if math.floor(((CurrentCamera.CFrame.p - v.PrimaryPart.Position).Magnitude) / 3.157) < esp.distance then
                             --print(v.PrimaryPart.Position)
-                            local Vector, OnScreen = CurrentCamera:WorldToViewportPoint(v.PrimaryPart.Position)
+                            local Vector, OnScreen = CurrentCamera:WorldToViewportPoint(Vector3.new(v.PrimaryPart.Position.X, v.PrimaryPart.Position.Y - 4, v.PrimaryPart.Position.Z))
                             if OnScreen then
                                 player.Color = esp.color
                                 player.Position = Vector2.new(Vector.x, Vector.y)
