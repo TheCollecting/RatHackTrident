@@ -359,7 +359,7 @@ EspSettings:AddSlider('ESP Distance', {
     end
 })
 
-local OreESPSettings = Tabs.ESP:AddLeftGroupbox('Ore ESP')
+local OreEspSettings = Tabs.ESP:AddLeftGroupbox('Ore ESP')
 OreEspSettings:AddToggle('Toggle Ore ESP', {
     Text = 'Toggle Ore ESP',
     Default = esp.ore.enabled,
