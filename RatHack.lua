@@ -6,6 +6,10 @@ local lighting = game:GetService("Lighting")
 
 local playerList = {}
 
+local oreList = {}
+
+local ores = {}
+
 function isPlayer (Model)
     return Model.ClassName == "Model" and Model:FindFirstChild("Torso") and Model.PrimaryPart ~= nil
 end
@@ -14,6 +18,15 @@ function getTableLength(T)
     local count = 0
     for _ in pairs(T) do count = count + 1 end
     return count
+end
+
+function isInTable(T, value)
+    for i, v in pairs(T) do
+        if v == value then
+            return true
+        end
+    end
+    return false
 end
 
 function isSleeping(Player)
@@ -26,9 +39,9 @@ function isSleeping(Player)
     return false
 end
 
--- function isOre(Model)
---     return Model.ClassName == "Model" and Model:FindFirstChild("Part") and Model.PrimaryPart ~= nil and Model:FindFirstChild("Part").Color == Color3.fromRGB(105, 102, 92)
--- end
+function isOre(Model)
+    return Model.ClassName == "Model" and Model:FindFirstChild("Part") and Model.PrimaryPart ~= nil and Model:FindFirstChild("Part").Color == Color3.fromRGB(105, 102, 92)
+end
 -- function isOre(Model)
 --     if Model.ClassName == "Model" and Model:FindFirstChild("Part") and Model.PrimaryPart ~= nil then
 --         if Model.Part.Color = Color3.FromRGB(105, 102, 92) then
@@ -37,11 +50,37 @@ end
 --     end
 -- end
 
--- for i, v in pairs(workspace:GetChildren()) do
---     if isOre(v) then
---         print(v.Part.Position)
---     end
--- end
+function clearOreText()
+    for _, i in ores do
+        i:Remove()
+    end
+end
+
+function initOreList()
+    table.clear(oreList)
+    for i, v in pairs(workspace:GetChildren()) do
+        if isOre(v) then
+            table.insert(oreList, v)
+            --print(v.Part.Position)
+        end
+    end
+end
+
+function initOreText()
+    clearOreText()
+    --for i = 0, #playerList do
+    for i = 0, 500 do
+        local ore = Drawing.new("Text")
+        ore.Visible = false
+        table.insert(ores, ore)
+    end
+end
+
+function hideAllOreText()
+    for _, i in ores do
+        i.Visible = false
+    end
+end
 
 function initPlayerList()
     table.clear(playerList)
@@ -93,6 +132,13 @@ local esp = {
     color = Color3.fromHex('ff89a4'),
     -- color = Library.AccentColor, -- Doesnt work unless you have opened a version of the cheat that doesnt have this in the same roblox instance
     distance = 500,
+
+    ore = {
+        enabled = true,
+        color = Color3.fromHex('ff89a4'),
+        distance = 500,
+        oresToShow = {},
+    }
 }
 
 local visuals = {
@@ -136,6 +182,9 @@ end
 
 initPlayerList()
 initPlayerText()
+
+initOreList()
+initOreText()
 
 local CurrentCamera = workspace.CurrentCamera
 
@@ -211,7 +260,56 @@ local ESPLoop = game:GetService("RunService").RenderStepped:Connect(function()
     SetFOV()
     -- Having these two in the render loop is retared (✿◠‿◠)
     hideAllPlayerText()
+    hideAllOreText()
     initPlayerList()
+    initOreList()
+
+    for i, v in pairs(oreList) do
+        ore = ores[i]
+        if esp.ore.enabled then
+            if ore ~= nil then 
+                if isOre(v) then
+                    if v.PrimaryPart then
+                        if math.floor(((CurrentCamera.CFrame.p - v.Part.Position).Magnitude) / 3.157) < esp.ore.distance then
+                            local Vector, OnScreen = CurrentCamera:WorldToViewportPoint(v.Part.Position)
+                            if OnScreen then
+                                ore.Color = esp.ore.color
+                                ore.Position = Vector2.new(Vector.x, Vector.y)
+                                ore.Visible = true
+                                -- ore.Text = 'ore'
+                                if v.PrimaryPart.Color == Color3.fromRGB(248, 248, 248) then
+                                    ore.Text = string.format("Nitrate [%sm]", math.floor(((CurrentCamera.CFrame.p - v.Part.Position).Magnitude) / 3.157))
+                                    if not esp.ore.oresToShow["Nitrate"] then
+                                        ore.Visible = false
+                                    end
+                                elseif v.PrimaryPart.Color == Color3.fromRGB(199, 172, 120) then
+                                    ore.Text = string.format("Iron [%sm]", math.floor(((CurrentCamera.CFrame.p - v.Part.Position).Magnitude) / 3.157))
+                                    if not esp.ore.oresToShow["Iron"] then
+                                        ore.Visible = false
+                                    end
+                                elseif v.PrimaryPart.Color == Color3.fromRGB(105, 102, 92) then
+                                    ore.Text = string.format("Stone [%sm]", math.floor(((CurrentCamera.CFrame.p - v.Part.Position).Magnitude) / 3.157))
+                                    if not esp.ore.oresToShow["Stone"] then
+                                        ore.Visible = false
+                                    end
+                                end
+                            else
+                                ore.Visible = false
+                            end
+                        else
+                            ore.Visible = false
+                        end
+                    else
+                        ore.Visible = false
+                    end
+                else
+                    ore.Visible = false
+                end
+            end
+        else
+            ore.Visible = false
+        end
+    end
 
     for i, v in pairs(playerList) do
         player = players[i]
@@ -225,7 +323,7 @@ local ESPLoop = game:GetService("RunService").RenderStepped:Connect(function()
                             if OnScreen then
                                 player.Color = esp.color
                                 player.Position = Vector2.new(Vector.x, Vector.y)
-                                player.Text = tostring(math.floor(((CurrentCamera.CFrame.p - v.PrimaryPart.Position).Magnitude) / 3.157) .. 'm')
+                                player.Text = string.format("Player [%sm]", tostring(math.floor(((CurrentCamera.CFrame.p - v.PrimaryPart.Position).Magnitude) / 3.157)))
                                 player.Visible = true
                             else
                                 player.Visible = false
@@ -335,6 +433,34 @@ EspSettings:AddLabel('ESP Color'):AddColorPicker('ColorPicker', {
 
     Callback = function(Value)
         esp.color = Value
+    end
+})
+
+EspSettings:AddDivider()
+
+EspSettings:AddLabel('Ore ESP', {
+    Text = 'Ore ESP'
+})
+
+EspSettings:AddToggle('Toggle Ore ESP', {
+    Text = 'Toggle Ore ESP',
+    Default = esp.ore.enabled,
+
+    Callback = function(Value)
+        esp.ore.enabled = Value
+    end
+})
+
+EspSettings:AddDropdown('Ores', {
+    Values = { 'Stone', 'Iron', 'Nitrate' },
+    Default = 0,
+    Multi = true,
+
+    Text = 'Ores',
+    Tooltip = 'i hate you i hate everything leave me alone',
+
+    Callback = function(Value)
+        esp.ore.oresToShow = Value
     end
 })
 
@@ -534,13 +660,13 @@ Library:OnUnload(function()
     GameLoop:Disconnect()
     GameLoop = nil
 
-    
-    
-
     crosshair.x:Remove()
     crosshair.y:Remove()
 
     for _, i in players do
+        i:Remove()
+    end
+    for _, i in ores do
         i:Remove()
     end
 
