@@ -202,8 +202,6 @@ end)
 
 -- TODO: Make this somewhat readable
 local ESPLoop = game:GetService("RunService").RenderStepped:Connect(function()
-    Zoom()
-    SetFOV()
     -------------- Gotta be a better performing way to do this (✿◠‿◠)
     hideAllPlayerText()
     hideAllOreText()
