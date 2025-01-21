@@ -396,12 +396,18 @@ VisualsMiscSettings:AddSlider('FOV', {
     end
 })
 VisualsMiscSettings:AddDivider()
+VisualsMiscSettings:AddToggle('Zoom', {
+    Text = 'Zoom',
+    Default = visuals.Zoom.enabled,
+    Callback = function(Value)
+        visuals.Zoom.enabled = Value
+    end
+})
 VisualsMiscSettings:AddLabel('Zoom Key'):AddKeyPicker('ZoomKeyPicker', {
     Default = visuals.Zoom.key,
     Mode = 'Toggle',
     Text = 'Zoom',
     Callback = function(Value)
-        visuals.Zoom.enabled = Value
     end,
     ChangedCallback = function(Key)
         visuals.Zoom.key = Key
