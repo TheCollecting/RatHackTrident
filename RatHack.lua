@@ -164,7 +164,7 @@ function hitBoxExpander(Model, Size)
 end
 
 local crosshair = {
-    enabled = true,
+    enabled = false,
     x = Drawing.new("Line"),
     y = Drawing.new("Line"),
 }
@@ -282,8 +282,17 @@ local ESPLoop = game:GetService("RunService").RenderStepped:Connect(function()
                             if OnScreen then
                                 player.Color = esp.color
                                 player.Position = Vector2.new(Vector.x, Vector.y)
-                                player.Text = string.format("Player [%sm]", tostring(math.floor(((CurrentCamera.CFrame.p - v.PrimaryPart.Position).Magnitude) / 3.157)))
                                 player.Visible = true
+                                -- if v.HandModel then
+                                --     if v.HandModel.Body.MeshId == "rbxassetid://13602542635" then
+                                --         print("scar")
+                                --     end
+                                -- end
+                                if v.Torso.CollisionGroup == "Players" then
+                                    player.Text = string.format("Player [%sm]", tostring(math.floor(((CurrentCamera.CFrame.p - v.PrimaryPart.Position).Magnitude) / 3.157)))
+                                else
+                                    player.Text = string.format("Bot [%sm]", tostring(math.floor(((CurrentCamera.CFrame.p - v.PrimaryPart.Position).Magnitude) / 3.157)))
+                                end
                             else
                                 player.Visible = false
                             end
@@ -564,7 +573,7 @@ uiToggles:AddToggle('Watermark', {
 })
 uiToggles:AddToggle('Crosshair', {
     Text = 'Show Crosshair',
-    Default = not crosshair.enabled,
+    Default = crosshair.enabled,
     Tooltip = 'im crying',
 
     Callback = function(Value)
