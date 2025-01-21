@@ -200,6 +200,9 @@ local GameLoop = game:GetService("RunService").Heartbeat:Connect(function()
     end
 end)
 
+initPlayerText()
+initOreText()
+
 -- TODO: Make this somewhat readable
 local ESPLoop = game:GetService("RunService").RenderStepped:Connect(function()
     -------------- Gotta be a better performing way to do this (✿◠‿◠)
