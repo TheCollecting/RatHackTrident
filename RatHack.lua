@@ -34,6 +34,7 @@ local visuals = {
     },
     Zoom = {
         enabled = false,
+        bindheld = false,
         key = 'B',
         zoomToFov = 20,
     }
@@ -148,13 +149,6 @@ function fullbrightfunc()
     end
 end
 
-
-function SetFOV()
-    if visuals.FOV.enabled and not visuals.Zoom.enabled then
-        CurrentCamera.FieldOfView = visuals.FOV.FOV
-    end
-end
-
 function hitBoxExpander(Model, Size)
     if (hitBox.enabled) then
         local Part = Model[hitBox.Part]
@@ -196,18 +190,6 @@ function drawCrosshair()
     end
 end
 
-function Zoom()
-    if visuals.Zoom.enabled then
-        CurrentCamera.FieldOfView = visuals.Zoom.zoomToFov
-    end
-end
-
-initPlayerList()
-initPlayerText()
-
-initOreList()
-initOreText()
-
 local GameLoop = game:GetService("RunService").Heartbeat:Connect(function()
     drawCrosshair()
     fullbrightfunc()
@@ -228,6 +210,17 @@ local ESPLoop = game:GetService("RunService").RenderStepped:Connect(function()
     initPlayerList()
     initOreList()
     --------------
+
+    if visuals.Zoom.enabled then
+        visuals.Zoom.bindheld = Options.ZoomKeyPicker:GetState()
+        if visuals.Zoom.bindheld then
+            CurrentCamera.FieldOfView = visuals.Zoom.zoomToFov
+        end
+    end
+
+    if visuals.FOV.enabled and not visuals.Zoom.bindheld then
+        CurrentCamera.FieldOfView = visuals.FOV.FOV
+    end
 
     -- Fucking headache
     -- Stole most of this from zopac
