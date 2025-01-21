@@ -10,8 +10,11 @@ local playerList = {} -- Player instance?
 local ores = {} -- Text
 local oreList = {} -- Ore instance?
 
+local items = {} -- Gets name and meshid for showing what item players are holding
+
 local esp = {
     enabled = true,
+    sleepers = true,
     color = Color3.fromHex('ff89a4'),
     distance = 500,
     ore = {
@@ -27,6 +30,7 @@ local visuals = {
         enabled = false,
         color = Color3.fromHex('ff89a4'),
         brightness = 1,
+        removeFog = false,
     },
     FOV = {
         enabled = true,
@@ -147,6 +151,9 @@ function fullbrightfunc()
             lighting.GlobalShadows = true
         end
     end
+    if visuals.fullbright.removeFog then
+        lighting.FogEnd = 9999
+    end
 end
 
 function hitBoxExpander(Model, Size)
@@ -190,6 +197,19 @@ function drawCrosshair()
     end
 end
 
+function loadItems()
+    for _, v in pairs(game:GetService("ReplicatedStorage").Shared.items["ranged weps"]:GetChildren()) do
+        local name = v.name
+        if v:FindFirstChild("Image") then
+            for _, y in pairs(v:FindFirstChild("Image"):GetChildren()) do
+                if y.name ~= "ID" and y.PrimaryPart then
+                    table.insert(items, {mesh = y.Body.MeshId, name = y.name})
+                end
+            end
+        end
+    end
+end
+
 local GameLoop = game:GetService("RunService").Heartbeat:Connect(function()
     drawCrosshair()
     fullbrightfunc()
@@ -200,6 +220,7 @@ local GameLoop = game:GetService("RunService").Heartbeat:Connect(function()
     end
 end)
 
+loadItems()
 initPlayerText()
 initOreText()
 
@@ -273,25 +294,38 @@ local ESPLoop = game:GetService("RunService").RenderStepped:Connect(function()
     -- Another fucking headache
     for i, v in pairs(playerList) do
         player = players[i]
+        local weapon = ""
         if esp.enabled then
             if player ~= nil then
-                if isPlayer(v) and not isSleeping(v) then
-                    if v.PrimaryPart then
-                        if math.floor(((CurrentCamera.CFrame.p - v.PrimaryPart.Position).Magnitude) / 3.157) < esp.distance then
-                            local Vector, OnScreen = CurrentCamera:WorldToViewportPoint(Vector3.new(v.PrimaryPart.Position.X, v.PrimaryPart.Position.Y - 4, v.PrimaryPart.Position.Z))
-                            if OnScreen then
-                                player.Color = esp.color
-                                player.Position = Vector2.new(Vector.x, Vector.y)
-                                player.Visible = true
-                                -- if v.HandModel then
-                                --     if v.HandModel.Body.MeshId == "rbxassetid://13602542635" then
-                                --         print("scar")
-                                --     end
-                                -- end
-                                if v.Torso.CollisionGroup == "Players" then
-                                    player.Text = string.format("Player [%sm]", tostring(math.floor(((CurrentCamera.CFrame.p - v.PrimaryPart.Position).Magnitude) / 3.157)))
+                if isPlayer(v)then
+                    if not isSleeping(v) or esp.sleepers and isSleeping(v) then
+                        if v.PrimaryPart then
+                            if math.floor(((CurrentCamera.CFrame.p - v.PrimaryPart.Position).Magnitude) / 3.157) < esp.distance then
+                                local Vector, OnScreen = CurrentCamera:WorldToViewportPoint(Vector3.new(v.PrimaryPart.Position.X, v.PrimaryPart.Position.Y - 4, v.PrimaryPart.Position.Z))
+                                if OnScreen then
+                                    player.Color = esp.color
+                                    player.Position = Vector2.new(Vector.x, Vector.y)
+                                    player.Visible = true
+                                    if v:FindFirstChild("HandModel") then
+                                        for _, z in pairs(items) do
+                                            if v.HandModel:FindFirstChild("Body") and v.HandModel.Body.MeshId == z.mesh then
+                                                weapon = z.name
+                                            end
+                                        end
+                                    else
+                                        weapon = ""
+                                    end
+                                    if v.Torso.CollisionGroup == "Players" then
+                                        if isSleeping(v) then
+                                            player.Text = string.format("Sleeper [%sm]\n %s", tostring(math.floor(((CurrentCamera.CFrame.p - v.PrimaryPart.Position).Magnitude) / 3.157)), weapon)
+                                        else
+                                            player.Text = string.format("Player [%sm]\n %s", tostring(math.floor(((CurrentCamera.CFrame.p - v.PrimaryPart.Position).Magnitude) / 3.157)), weapon)
+                                        end
+                                    else
+                                        player.Text = string.format("Bot [%sm]\n %s", tostring(math.floor(((CurrentCamera.CFrame.p - v.PrimaryPart.Position).Magnitude) / 3.157)), weapon)
+                                    end
                                 else
-                                    player.Text = string.format("Bot [%sm]", tostring(math.floor(((CurrentCamera.CFrame.p - v.PrimaryPart.Position).Magnitude) / 3.157)))
+                                    player.Visible = false
                                 end
                             else
                                 player.Visible = false
@@ -299,8 +333,6 @@ local ESPLoop = game:GetService("RunService").RenderStepped:Connect(function()
                         else
                             player.Visible = false
                         end
-                    else
-                        player.Visible = false
                     end
                 else
                     player.Visible = false
@@ -348,6 +380,13 @@ EspSettings:AddToggle('ESP', {
     Transparency = 0,
     Callback = function(Value)
         esp.color = Value
+    end
+})
+EspSettings:AddToggle('Show sleepers', {
+    Text = 'Show sleepers',
+    Default = esp.sleepers,
+    Callback = function(Value)
+        esp.sleepers = Value
     end
 })
 EspSettings:AddSlider('ESP Distance', {
@@ -448,6 +487,13 @@ WorldSettings:AddToggle('Fullbright', {
     Transparency = 0,
     Callback = function(Value)
         visuals.fullbright.color = Value
+    end
+})
+WorldSettings:AddToggle('Remove fog', {
+    Text = 'Remove fog',
+    Default = visuals.fullbright.removeFog,
+    Callback = function(Value)
+        visuals.fullbright.removeFog = Value
     end
 })
 WorldSettings:AddSlider('Fullbright Brightness',{
