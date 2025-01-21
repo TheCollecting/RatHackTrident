@@ -4,11 +4,11 @@ local lighting = game:GetService("Lighting")
 local CurrentCamera = workspace.CurrentCamera
 local screenCenter = Vector2.new(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y / 2)
 
-local players = {}
-local playerList = {}
+local players = {} -- Text
+local playerList = {} -- Player instance?
 
-local ores = {}
-local oreList = {}
+local ores = {} -- Text
+local oreList = {} -- Ore instance?
 
 local esp = {
     enabled = true,
