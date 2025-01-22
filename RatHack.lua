@@ -10,6 +10,8 @@ local playerList = {} -- Player instance?
 local ores = {} -- Text
 local oreList = {} -- Ore instance?
 
+local OreMesh = "rbxassetid://12939036056"
+
 local items = {} -- Gets name and meshid for showing what item players are holding
 
 local esp = {
@@ -22,7 +24,7 @@ local esp = {
         color = Color3.fromHex('ff89a4'),
         distance = 500,
         oresToShow = {},
-    }
+    },
 }
 
 local visuals = {
@@ -66,7 +68,7 @@ function isSleeping(Player)
 end
 
 function isOre(Model)
-    return Model.ClassName == "Model" and Model:FindFirstChild("Part") and Model.PrimaryPart ~= nil and Model:FindFirstChild("Part").Color == Color3.fromRGB(105, 102, 92)
+    return Model.ClassName == "Model" and Model:FindFirstChild("Part") and Model.PrimaryPart ~= nil and Model:FindFirstChild("Part").Color == Color3.fromRGB(105, 102, 92) and not Model:FindFirstChild("Display") and Model:FindFirstChild("Part").MeshId == OreMesh
 end
 
 function clearOreText()
@@ -396,6 +398,7 @@ EspSettings:AddSlider('ESP Distance', {
     Min = 50,
     Max = 1000,
     Rounding = 1,
+    Compact = true,
     Callback = function(Value)
         esp.distance = Value
     end
@@ -416,6 +419,7 @@ OreEspSettings:AddSlider('Ore ESP Distance', {
     Min = 50,
     Max = 1000,
     Rounding = 1,
+    Compact = true,
     Callback = function(Value)
         esp.ore.distance = Value
     end
@@ -439,6 +443,7 @@ VisualsMiscSettings:AddSlider('FOV', {
     Min = 40,
     Max = 120,
     Rounding = 1,
+    Compact = true,
     Callback = function(Value)
         visuals.FOV.FOV = Value
     end
@@ -468,6 +473,7 @@ VisualsMiscSettings:AddSlider('Zoom', {
     Min = 1,
     Max = 70,
     Rounding = 1,
+    Compact = true,
     Callback = function(Value)
         visuals.Zoom.zoomToFov = Value
     end
@@ -503,6 +509,7 @@ WorldSettings:AddSlider('Fullbright Brightness',{
     Min = 0,
     Max = 2,
     Rounding = 1,
+    Compact = true,
     Callback = function(Value)
         visuals.fullbright.brightness = Value
     end
@@ -534,6 +541,7 @@ MiscSettings:AddSlider('HitBox size', {
     Min = 2,
     Max = 15,
     Rounding = 1,
+    Compact = true,
     Callback = function(Value)
         hitBox.size = Value
     end
@@ -545,6 +553,7 @@ MiscSettings:AddSlider('HitBox opacity', {
     Min = 0,
     Max = 1,
     Rounding = 1,
+    Compact = true,
     Callback = function(Value)
         hitBox.Transparency = Value
     end
